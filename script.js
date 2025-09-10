@@ -396,4 +396,3 @@ async function marcarComoConcluida(rowNumber, originalId) {
 
 
 document.addEventListener('DOMContentLoaded', carregarTrocas);
-
