@@ -2,8 +2,7 @@
 // 1. COLE A URL DO SEU SCRIPT DO GOOGLE AQUI
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec';
 
-// 2. INSIRA OS DADOS DOS MILITARES ABAIXO
-// A lista abaixo já está preenchida com os 179 militares que você enviou.
+// 2. LISTA DE MILITARES
 const dadosMilitares = [
     { idFuncional: "4279310", graduacao: "Cap", nomeGuerra: "MARTINS", secao: "CMT CIA" },
     { idFuncional: "3146316", graduacao: "Cap", nomeGuerra: "LOPES", secao: "CMT CIA" },
@@ -184,8 +183,19 @@ const dadosMilitares = [
     { idFuncional: "4980662", graduacao: "Sd", nomeGuerra: "SANTOS", secao: "AUTO RESGATE" },
     { idFuncional: "4490835", graduacao: "SD BMT", nomeGuerra: "AMARANTE", secao: "AUTO RESGATE" }
 ];
+
+// 3. OPÇÕES DE TAMANHO PARA CADA ITEM (extraído do PDF)
+const tamanhosPorItem = {
+    "Camiseta": ["P", "M", "G", "GG",, "XGG"],
+    "Gandola": ["1", "2", "3", "4", "5", "6", "7"],
+    "Calça Farda": ["38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60"],
+    "Cobertura": ["54","55", "56", "57", "58", "59", "60", "61", "62"],
+    "Parká": ["PP", "P", "M", "G", "GG", "XGG"]
+};
 // ######################################################
 
+
+// --- LÓGICA DA APLICAÇÃO (NÃO PRECISA ALTERAR DAQUI PARA BAIXO) ---
 
 // Elementos da página
 const idInput = document.getElementById('idInput');
@@ -198,8 +208,46 @@ const tradeForm = document.getElementById('tradeForm');
 const formMessage = document.getElementById('formMessage');
 const tradeListTbody = document.getElementById('tradeList');
 const loadingMessage = document.getElementById('loadingMessage');
+const itemSelect = document.getElementById('itemSelect');
+const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
+const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
 
 let militarLogado = null; // Guarda os dados do militar identificado
+
+// Função para atualizar as caixas de seleção de tamanho
+function atualizarOpcoesDeTamanho() {
+    const itemSelecionado = itemSelect.value;
+    const tamanhos = tamanhosPorItem[itemSelecionado] || [];
+
+    // Limpa os selects de tamanho
+    tamanhoTenhoSelect.innerHTML = '';
+    tamanhoPrecisoSelect.innerHTML = '';
+
+    if (tamanhos.length > 0) {
+        // Habilita os selects
+        tamanhoTenhoSelect.disabled = false;
+        tamanhoPrecisoSelect.disabled = false;
+
+        // Adiciona a primeira opção padrão para instruir o usuário
+        tamanhoTenhoSelect.add(new Option("-- Selecione --", ""));
+        tamanhoPrecisoSelect.add(new Option("-- Selecione --", ""));
+        
+        // Popula com os tamanhos corretos
+        tamanhos.forEach(tamanho => {
+            tamanhoTenhoSelect.add(new Option(tamanho, tamanho));
+            tamanhoPrecisoSelect.add(new Option(tamanho, tamanho));
+        });
+    } else {
+        // Desabilita e reseta se nenhum item for válido
+        tamanhoTenhoSelect.disabled = true;
+        tamanhoPrecisoSelect.disabled = true;
+        tamanhoTenhoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
+        tamanhoPrecisoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
+    }
+}
+
+// Adiciona o 'escutador' de eventos para a seleção de item
+itemSelect.addEventListener('change', atualizarOpcoesDeTamanho);
 
 // Função que é acionada quando o usuário digita a ID Funcional
 idInput.addEventListener('input', () => {
@@ -238,12 +286,18 @@ tradeForm.addEventListener('submit', async (e) => {
         contato: document.getElementById('contatoInput').value,
     };
 
+    // Validação para garantir que um tamanho foi selecionado
+    if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
+        alert("Por favor, preencha todos os campos para a troca.");
+        return;
+    }
+
     formMessage.textContent = 'Enviando...';
 
     try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Importante para evitar erros de CORS com o script do Google
+            mode: 'no-cors', 
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -253,6 +307,9 @@ tradeForm.addEventListener('submit', async (e) => {
         formMessage.style.color = 'green';
         formMessage.textContent = 'Solicitação de troca registrada com sucesso! A lista será atualizada em breve.';
         tradeForm.reset();
+        
+        // Reseta os campos de tamanho
+        atualizarOpcoesDeTamanho();
         
         // Recarrega a lista após um pequeno atraso
         setTimeout(carregarTrocas, 2000);
@@ -299,4 +356,3 @@ async function carregarTrocas() {
 
 // Carrega a lista de trocas assim que a página é aberta
 document.addEventListener('DOMContentLoaded', carregarTrocas);
-
