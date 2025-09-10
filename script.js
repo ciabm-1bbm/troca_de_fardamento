@@ -10,8 +10,8 @@ const dadosMilitares = [
     { idFuncional: "2822130", graduacao: "Sd", nomeGuerra: "MEDEIROS", secao: "CIABM" },
     { idFuncional: "3205614", graduacao: "Sd", nomeGuerra: "HERMENEGILDO", secao: "CIABM" },
     { idFuncional: "4672410", graduacao: "Sd", nomeGuerra: "GARIBALDI", secao: "CIABM" },
-    { idFuncional: "2262363", graduacao: "1º TEN PME", nomeGuerra: "TERRA", secao: "ADM" },
-    { idFuncional: "2328798", graduacao: "1º TEN PME", nomeGuerra: "PRADE", secao: "ADM" },
+    { idFuncional: "2262363", graduacao: "1º TEN PME", nomeGuerra: "TERRAS", secao: "ADM" },
+    { idFuncional: "2328798", graduacao: "1º TEN PME", nomeGuerra: "PRADES", secao: "ADM" },
     { idFuncional: "3698653", graduacao: "2º Sgt", nomeGuerra: "JÚLIA", secao: "ADM" },
     { idFuncional: "2891301", graduacao: "Sd", nomeGuerra: "FERREIRA", secao: "ADM" },
     { idFuncional: "3698360", graduacao: "Sd", nomeGuerra: "VILELA", secao: "ADM" },
@@ -184,12 +184,12 @@ const dadosMilitares = [
     { idFuncional: "4490835", graduacao: "SD BMT", nomeGuerra: "AMARANTE", secao: "AUTO RESGATE" }
 ];
 
-// 3. OPÇÕES DE TAMANHO PARA CADA ITEM (extraído do PDF)
+// 3. OPÇÕES DE TAMANHO PARA CADA ITEM
 const tamanhosPorItem = {
-    "Camiseta": ["P", "M", "G", "GG",, "XGG"],
+    "Camiseta": ["P", "M", "G", "GG", "XGG"],
     "Gandola": ["1", "2", "3", "4", "5", "6", "7"],
     "Calça Farda": ["38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60"],
-    "Cobertura": ["54","55", "56", "57", "58", "59", "60", "61", "62"],
+    "Cobertura": ["54", "55", "56", "57", "58", "59", "60", "61", "62"],
     "Parká": ["PP", "P", "M", "G", "GG", "XGG"]
 };
 // ######################################################
@@ -212,33 +212,35 @@ const itemSelect = document.getElementById('itemSelect');
 const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
 const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
 
-let militarLogado = null; // Guarda os dados do militar identificado
+let militarLogado = null; 
 
-// Função para atualizar as caixas de seleção de tamanho
+// *** NOVO: Função para formatar a data ***
+function formatarData(dataString) {
+    if (!dataString) return '-';
+    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const data = new Date(dataString);
+    const dia = data.getDate();
+    const mes = meses[data.getMonth()];
+    return `${dia}/${mes}`;
+}
+
 function atualizarOpcoesDeTamanho() {
     const itemSelecionado = itemSelect.value;
     const tamanhos = tamanhosPorItem[itemSelecionado] || [];
-
-    // Limpa os selects de tamanho
     tamanhoTenhoSelect.innerHTML = '';
     tamanhoPrecisoSelect.innerHTML = '';
 
     if (tamanhos.length > 0) {
-        // Habilita os selects
         tamanhoTenhoSelect.disabled = false;
         tamanhoPrecisoSelect.disabled = false;
-
-        // Adiciona a primeira opção padrão para instruir o usuário
         tamanhoTenhoSelect.add(new Option("-- Selecione --", ""));
         tamanhoPrecisoSelect.add(new Option("-- Selecione --", ""));
         
-        // Popula com os tamanhos corretos
-        tamanhos.forEach(tamanho => {
+        tamanhos.filter(t => t).forEach(tamanho => {
             tamanhoTenhoSelect.add(new Option(tamanho, tamanho));
             tamanhoPrecisoSelect.add(new Option(tamanho, tamanho));
         });
     } else {
-        // Desabilita e reseta se nenhum item for válido
         tamanhoTenhoSelect.disabled = true;
         tamanhoPrecisoSelect.disabled = true;
         tamanhoTenhoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
@@ -246,10 +248,8 @@ function atualizarOpcoesDeTamanho() {
     }
 }
 
-// Adiciona o 'escutador' de eventos para a seleção de item
 itemSelect.addEventListener('change', atualizarOpcoesDeTamanho);
 
-// Função que é acionada quando o usuário digita a ID Funcional
 idInput.addEventListener('input', () => {
     const id = idInput.value;
     const militarEncontrado = dadosMilitares.find(m => m.idFuncional === id);
@@ -268,25 +268,24 @@ idInput.addEventListener('input', () => {
     }
 });
 
-// Função para enviar o formulário de troca
 tradeForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Impede o recarregamento da página
+    e.preventDefault();
 
     if (!militarLogado) {
         alert("Por favor, insira uma ID Funcional válida primeiro.");
         return;
     }
-
+    
     const formData = {
         idFuncional: militarLogado.idFuncional,
         nomeGuerra: militarLogado.nomeGuerra,
+        secao: militarLogado.secao,
         item: document.getElementById('itemSelect').value,
         tamanhoTenho: document.getElementById('tamanhoTenho').value,
         tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
         contato: document.getElementById('contatoInput').value,
     };
 
-    // Validação para garantir que um tamanho foi selecionado
     if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
         alert("Por favor, preencha todos os campos para a troca.");
         return;
@@ -297,21 +296,15 @@ tradeForm.addEventListener('submit', async (e) => {
     try {
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', 
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(formData),
         });
 
         formMessage.style.color = 'green';
         formMessage.textContent = 'Solicitação de troca registrada com sucesso! A lista será atualizada em breve.';
         tradeForm.reset();
-        
-        // Reseta os campos de tamanho
         atualizarOpcoesDeTamanho();
-        
-        // Recarrega a lista após um pequeno atraso
         setTimeout(carregarTrocas, 2000);
 
     } catch (error) {
@@ -321,39 +314,37 @@ tradeForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Função para carregar e exibir a lista de trocas
 async function carregarTrocas() {
     loadingMessage.style.display = 'block';
-    tradeListTbody.innerHTML = ''; // Limpa a lista antiga
+    tradeListTbody.innerHTML = '';
 
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const trocas = await response.json();
 
         if (trocas.length === 0) {
-            tradeListTbody.innerHTML = '<tr><td colspan="6">Nenhuma solicitação de troca registrada ainda.</td></tr>';
+            tradeListTbody.innerHTML = '<tr><td colspan="7">Nenhuma solicitação de troca registrada ainda.</td></tr>';
         } else {
             trocas.forEach(troca => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${troca.data}</td>
-                    <td>${troca.nomeGuerra}</td>
-                    <td>${troca.item}</td>
-                    <td>${troca.tamanhoTenho}</td>
-                    <td>${troca.tamanhoPreciso}</td>
+                    <td>${formatarData(troca.data)}</td>
+                    <td>${troca.nomeGuerra || '-'}</td>
+                    <td>${troca.secao || '-'}</td>
+                    <td>${troca.item || '-'}</td>
+                    <td>${troca.tamanhoTenho || '-'}</td>
+                    <td>${troca.tamanhoPreciso || '-'}</td>
                     <td>${troca.contato || '-'}</td>
                 `;
                 tradeListTbody.appendChild(tr);
             });
         }
     } catch (error) {
-        tradeListTbody.innerHTML = '<tr><td colspan="6">Erro ao carregar a lista de trocas.</td></tr>';
+        tradeListTbody.innerHTML = '<tr><td colspan="7">Erro ao carregar a lista de trocas.</td></tr>';
         console.error('Erro ao carregar trocas:', error);
     } finally {
         loadingMessage.style.display = 'none';
     }
 }
 
-// Carrega a lista de trocas assim que a página é aberta
 document.addEventListener('DOMContentLoaded', carregarTrocas);
-
