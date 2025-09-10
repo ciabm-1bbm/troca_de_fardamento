@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Troca de Fardamento</title>
+    <title>Troca de Fardamento - 1ª Cia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Plataforma de Troca de Fardamento</h1>
 
+    <header id="main-header">
+        <div class="container">
+            <h1>Plataforma de Troca de Fardamento</h1>
+            <h2>1ª Companhia de Bombeiros Militar</h2>
+        </div>
+    </header>
+
+    <main class="container">
         <div class="card">
             <h2>1. Identificação</h2>
             <p>Digite sua ID Funcional para carregar seus dados.</p>
@@ -23,7 +34,7 @@
 
         <div id="tradeSection" class="card trade-section-hidden">
             <h2>2. Solicitar Troca</h2>
-            <p>Selecione o item que deseja trocar, o tamanho que você tem e o tamanho que precisa.</p>
+            <p>Selecione o item, o tamanho que você tem e o tamanho que precisa.</p>
             <form id="tradeForm">
                 <div class="form-group">
                     <label for="itemSelect">Item para Troca:</label>
@@ -56,7 +67,7 @@
                     <input type="text" id="contatoInput" placeholder="Celular (xx) x xxxx-xxxx">
                 </div>
 
-                <button type="submit">Registrar Solicitação de Troca</button>
+                <button type="submit" class="button">Registrar Solicitação de Troca</button>
             </form>
             <div id="formMessage"></div>
         </div>
@@ -84,7 +95,8 @@
                 </table>
             </div>
         </div>
-    </div>
+    </main>
+    
     <script src="script.js"></script>
 </body>
 </html>
