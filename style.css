@@ -6,6 +6,7 @@
     --white-color: #fff;
     --border-color: #ddd;
     --success-color: #28a745;
+    --grayed-out-color: #bbb;
 }
 
 body {
@@ -19,7 +20,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 950px; /* Aumentei um pouco para a nova coluna */
     margin: auto;
     padding: 20px;
 }
@@ -127,7 +128,7 @@ input[type="text"]:focus, select:focus {
     text-align: center;
 }
 
-/* --- BOTÃO PRINCIPAL --- */
+/* --- BOTÕES --- */
 .button {
     display: block;
     width: 100%;
@@ -144,9 +145,24 @@ input[type="text"]:focus, select:focus {
 }
 
 .button:hover {
-    background-color: #0072b0; /* Um tom de azul um pouco mais escuro */
+    background-color: #0072b0;
 }
 
+.complete-btn {
+    background-color: var(--success-color);
+    color: var(--white-color);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.complete-btn:hover {
+    background-color: #218838;
+}
 
 /* --- TABELA RESPONSIVA --- */
 .table-container {
@@ -158,7 +174,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    min-width: 650px;
+    min-width: 800px;
 }
 
 th, td {
@@ -187,6 +203,17 @@ tr:nth-child(odd) {
     background-color: #f9f9f9;
 }
 
+/* Estilo para a linha concluída */
+tr.concluida {
+    background-color: #f8f9fa;
+    color: var(--grayed-out-color);
+    text-decoration: line-through;
+}
+
+tr.concluida .complete-btn {
+    display: none; /* Esconde o botão se a troca já foi concluída */
+}
+
 
 /* --- AJUSTES PARA CELULAR E TELAS MENORES --- */
 @media (max-width: 768px) {
@@ -201,7 +228,6 @@ tr:nth-child(odd) {
     }
 }
 
-/* Media Query para telas maiores */
 @media (min-width: 600px) {
     .form-group-inline {
         flex-direction: row;
