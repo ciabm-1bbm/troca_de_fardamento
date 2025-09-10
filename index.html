@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Troca de Fardamento - 1º BBM</title>
+    <title>Troca de Fardamento - 1ª Cia</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,15 +15,15 @@
 
     <header id="main-header">
         <div class="container">
-            <h1>Plataforma para Troca de Fardamento</h1>
-            <h2>Companhia de Bombeiro Militar do 1º BBM</h2>
+            <h1>Plataforma de Troca de Fardamento</h1>
+            <h2>1ª Companhia de Bombeiros Militar</h2>
         </div>
     </header>
 
     <main class="container">
         <div class="card">
             <h2>1. Identificação</h2>
-            <p>Digite abaixo sua Identidade Funcional para carregar seus dados:</p>
+            <p>Digite sua ID Funcional para carregar seus dados.</p>
             <input type="text" id="idInput" placeholder="Digite sua ID Funcional">
             <div id="userInfo" class="user-info-hidden">
                 <p><strong>Posto/Grad:</strong> <span id="userGraduacao"></span></p>
@@ -67,14 +67,14 @@
                     <input type="text" id="contatoInput" placeholder="Celular (xx) x xxxx-xxxx">
                 </div>
 
-                <button type="submit" class="button">Clique aqui para Registrar sua Solicitação</button>
+                <button type="submit" class="button">Registrar Solicitação de Troca</button>
             </form>
             <div id="formMessage"></div>
         </div>
 
         <div class="card">
             <h2>3. Lista de Solicitações Ativas</h2>
-            <p>Agora confira abaixo as solicitações de troca de outros militares do BBM, que possa ter o seu tamanho para oferecer:</p>
+            <p>Veja abaixo as solicitações de troca de outros militares. Trocas concluídas aparecem em cinza.</p>
             <div id="loadingMessage">Carregando lista de trocas...</div>
             
             <div class="table-container">
@@ -88,6 +88,7 @@
                             <th>Tem</th>
                             <th>Precisa</th>
                             <th>Contato</th>
+                            <th>Já Efetuou a Troca?</th>
                         </tr>
                     </thead>
                     <tbody id="tradeList">
@@ -100,6 +101,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
