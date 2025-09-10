@@ -1,8 +1,7 @@
 // #################### CONFIGURAÇÃO ####################
-// 1. COLE A URL DO SEU SCRIPT DO GOOGLE AQUI
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec'; // Insira sua URL aqui
 
-// 2. LISTA DE MILITARES
+// LISTA DE MILITARES (a sua lista completa vai aqui)
 const dadosMilitares = [
     { idFuncional: "4279310", graduacao: "Cap", nomeGuerra: "MARTINS", secao: "CMT CIA" },
     { idFuncional: "3146316", graduacao: "Cap", nomeGuerra: "LOPES", secao: "CMT CIA" },
@@ -185,7 +184,7 @@ const dadosMilitares = [
     { idFuncional: "4490835", graduacao: "SD BMT", nomeGuerra: "AMARANTE", secao: "AUTO RESGATE" }
 ];
 
-// 3. OPÇÕES DE TAMANHO PARA CADA ITEM
+// OPÇÕES DE TAMANHO PARA CADA ITEM
 const tamanhosPorItem = {
     "Camiseta": ["P", "M", "G", "GG", "XGG"],
     "Gandola": ["1", "2", "3", "4", "5", "6", "7"],
@@ -196,9 +195,8 @@ const tamanhosPorItem = {
 // ######################################################
 
 
-// --- LÓGICA DA APLICAÇÃO (NÃO PRECISA ALTERAR DAQUI PARA BAIXO) ---
+// --- LÓGICA DA APLICAÇÃO ---
 
-// Elementos da página
 const idInput = document.getElementById('idInput');
 const userInfoDiv = document.getElementById('userInfo');
 const userGraduacaoSpan = document.getElementById('userGraduacao');
@@ -215,7 +213,6 @@ const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
 
 let militarLogado = null; 
 
-// *** NOVO: Função para formatar a data ***
 function formatarData(dataString) {
     if (!dataString) return '-';
     const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -278,6 +275,7 @@ tradeForm.addEventListener('submit', async (e) => {
     }
     
     const formData = {
+        action: 'create', // Ação para criar novo registro
         idFuncional: militarLogado.idFuncional,
         nomeGuerra: militarLogado.nomeGuerra,
         secao: militarLogado.secao,
@@ -298,12 +296,11 @@ tradeForm.addEventListener('submit', async (e) => {
         await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(formData),
         });
 
         formMessage.style.color = 'green';
-        formMessage.textContent = 'Solicitação de troca registrada com sucesso! A lista será atualizada em breve.';
+        formMessage.textContent = 'Solicitação de troca registrada com sucesso!';
         tradeForm.reset();
         atualizarOpcoesDeTamanho();
         setTimeout(carregarTrocas, 2000);
@@ -324,10 +321,18 @@ async function carregarTrocas() {
         const trocas = await response.json();
 
         if (trocas.length === 0) {
-            tradeListTbody.innerHTML = '<tr><td colspan="7">Nenhuma solicitação de troca registrada ainda.</td></tr>';
+            tradeListTbody.innerHTML = '<tr><td colspan="8">Nenhuma solicitação de troca registrada ainda.</td></tr>';
         } else {
             trocas.forEach(troca => {
                 const tr = document.createElement('tr');
+                if (troca.status === 'Concluída') {
+                    tr.classList.add('concluida');
+                }
+
+                const statusCell = (troca.status === 'Concluída') 
+                    ? `<td>Concluída</td>` 
+                    : `<td><button class="complete-btn" onclick="marcarComoConcluida(${troca.rowNumber}, '${troca.idFuncional}')">CONCLUIR</button></td>`;
+
                 tr.innerHTML = `
                     <td>${formatarData(troca.data)}</td>
                     <td>${troca.nomeGuerra || '-'}</td>
@@ -336,17 +341,58 @@ async function carregarTrocas() {
                     <td>${troca.tamanhoTenho || '-'}</td>
                     <td>${troca.tamanhoPreciso || '-'}</td>
                     <td>${troca.contato || '-'}</td>
+                    ${statusCell}
                 `;
                 tradeListTbody.appendChild(tr);
             });
         }
     } catch (error) {
-        tradeListTbody.innerHTML = '<tr><td colspan="7">Erro ao carregar a lista de trocas.</td></tr>';
+        tradeListTbody.innerHTML = '<tr><td colspan="8">Erro ao carregar a lista de trocas.</td></tr>';
         console.error('Erro ao carregar trocas:', error);
     } finally {
         loadingMessage.style.display = 'none';
     }
 }
 
-document.addEventListener('DOMContentLoaded', carregarTrocas);
+async function marcarComoConcluida(rowNumber, originalId) {
+    const verifierId = prompt("Para confirmar, por favor, digite sua ID Funcional:");
 
+    if (!verifierId) return; // Usuário cancelou
+
+    if (verifierId.trim() !== originalId.toString()) {
+        alert("Erro: A ID Funcional digitada não corresponde à do militar que criou esta solicitação.");
+        return;
+    }
+
+    const data = {
+        action: 'updateStatus',
+        rowNumber: rowNumber,
+        verifierId: verifierId.trim()
+    };
+
+    try {
+        // Usamos 'cors' aqui para poder ler a resposta do servidor
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert("Troca marcada como concluída com sucesso!");
+            carregarTrocas(); // Recarrega a lista para mostrar a mudança
+        } else {
+            throw new Error(result.message || "Erro desconhecido.");
+        }
+    } catch (error) {
+        console.error("Erro ao atualizar:", error);
+        alert(`Não foi possível marcar como concluída. Erro: ${error.message}`);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', carregarTrocas);
