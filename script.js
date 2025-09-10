@@ -1,6 +1,6 @@
 // #################### CONFIGURAÇÃO ####################
 // 1. COLE A URL DO SEU SCRIPT DO GOOGLE AQUI
-const GOOGLE_SCRIPT_URL = 'COLE_A_URL_DO_SEU_APP_DA_WEB_AQUI';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec';
 
 // 2. INSIRA OS DADOS DOS MILITARES ABAIXO
 // A lista abaixo já está preenchida com os 179 militares que você enviou.
@@ -299,3 +299,4 @@ async function carregarTrocas() {
 
 // Carrega a lista de trocas assim que a página é aberta
 document.addEventListener('DOMContentLoaded', carregarTrocas);
+
