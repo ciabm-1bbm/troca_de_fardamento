@@ -10,8 +10,8 @@ const dadosMilitares = [
     { idFuncional: "2822130", graduacao: "Sd", nomeGuerra: "MEDEIROS", secao: "CIABM" },
     { idFuncional: "3205614", graduacao: "Sd", nomeGuerra: "HERMENEGILDO", secao: "CIABM" },
     { idFuncional: "4672410", graduacao: "Sd", nomeGuerra: "GARIBALDI", secao: "CIABM" },
-    { idFuncional: "2262363", graduacao: "1º TEN PME", nomeGuerra: "TERRAS", secao: "ADM" },
-    { idFuncional: "2328798", graduacao: "1º TEN PME", nomeGuerra: "PRADES", secao: "ADM" },
+    { idFuncional: "2262363", graduacao: "1º TEN PME", nomeGuerra: "TERRA", secao: "ADM" },
+    { idFuncional: "2328798", graduacao: "1º TEN PME", nomeGuerra: "PRADE", secao: "ADM" },
     { idFuncional: "3698653", graduacao: "2º Sgt", nomeGuerra: "JÚLIA", secao: "ADM" },
     { idFuncional: "2891301", graduacao: "Sd", nomeGuerra: "FERREIRA", secao: "ADM" },
     { idFuncional: "3698360", graduacao: "Sd", nomeGuerra: "VILELA", secao: "ADM" },
@@ -356,3 +356,4 @@ async function carregarTrocas() {
 
 // Carrega a lista de trocas assim que a página é aberta
 document.addEventListener('DOMContentLoaded', carregarTrocas);
+
