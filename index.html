@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF--8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Troca de Fardamento</title>
     <link rel="stylesheet" href="style.css">
@@ -40,28 +40,20 @@
                 <div class="form-group-inline">
                     <div class="form-group">
                         <label for="tamanhoTenho">Tamanho que EU TENHO:</label>
-                        <select id="tamanhoTenho" required>
-                            <option value="P">P</option>
-                            <option value="M">M</option>
-                            <option value="G">G</option>
-                            <option value="GG">GG</option>
-                            <option value="XG">XG</option>
+                        <select id="tamanhoTenho" required disabled>
+                            <option value="" selected>-- Primeiro, escolha um item --</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="tamanhoPreciso">Tamanho que EU PRECISO:</label>
-                        <select id="tamanhoPreciso" required>
-                            <option value="P">P</option>
-                            <option value="M">M</option>
-                            <option value="G">G</option>
-                            <option value="GG">GG</option>
-                            <option value="XG">XG</option>
+                        <select id="tamanhoPreciso" required disabled>
+                             <option value="" selected>-- Primeiro, escolha um item --</option>
                         </select>
                     </div>
                 </div>
                  <div class="form-group">
-                    <label for="contatoInput">Seu Contato (Ramal ou Telefone - Opcional):</label>
-                    <input type="text" id="contatoInput" placeholder="Ex: Ramal 123 ou (51) 9....">
+                    <label for="contatoInput">Celular para Contato (Opcional):</label>
+                    <input type="text" id="contatoInput" placeholder="Celular (xx) x xxxx-xxxx">
                 </div>
 
                 <button type="submit">Registrar Solicitação de Troca</button>
