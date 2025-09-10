@@ -213,6 +213,21 @@ const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
 
 let militarLogado = null; 
 
+// A função formatarData e outras funções auxiliares permanecem as mesmas...
+// ... (cole o código completo para garantir)
+
+// --- COLE O CÓDIGO COMPLETO ABAIXO NO SEU ARQUIVO ---
+
+const userGraduacaoSpan = document.getElementById('userGraduacao');
+const userNomeSpan = document.getElementById('userNome');
+const userSecaoSpan = document.getElementById('userSecao');
+const tradeSectionDiv = document.getElementById('tradeSection');
+const tradeForm = document.getElementById('tradeForm');
+const formMessage = document.getElementById('formMessage');
+const itemSelect = document.getElementById('itemSelect');
+const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
+const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
+
 function formatarData(dataString) {
     if (!dataString) return '-';
     const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -268,110 +283,108 @@ idInput.addEventListener('input', () => {
 
 tradeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     if (!militarLogado) {
         alert("Por favor, insira uma ID Funcional válida primeiro.");
         return;
     }
-    
-    const formData = {
-        action: 'create', // Ação para criar novo registro
-        idFuncional: militarLogado.idFuncional,
-        nomeGuerra: militarLogado.nomeGuerra,
-        secao: militarLogado.secao,
-        item: document.getElementById('itemSelect').value,
-        tamanhoTenho: document.getElementById('tamanhoTenho').value,
-        tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
-        contato: document.getElementById('contatoInput').value,
-    };
-
+    const formData = { action: 'create', idFuncional: militarLogado.idFuncional, nomeGuerra: militarLogado.nomeGuerra, secao: militarLogado.secao, item: itemSelect.value, tamanhoTenho: tamanhoTenhoSelect.value, tamanhoPreciso: tamanhoPrecisoSelect.value, contato: document.getElementById('contatoInput').value };
     if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
         alert("Por favor, preencha todos os campos para a troca.");
         return;
     }
-
     formMessage.textContent = 'Enviando...';
-
     try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(formData),
-        });
-
+        await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData), redirect: 'follow' });
         formMessage.style.color = 'green';
         formMessage.textContent = 'Solicitação de troca registrada com sucesso!';
         tradeForm.reset();
         atualizarOpcoesDeTamanho();
         setTimeout(carregarTrocas, 2000);
-
     } catch (error) {
         formMessage.style.color = 'red';
         formMessage.textContent = 'Erro ao registrar a solicitação. Tente novamente.';
-        console.error('Erro:', error);
+        console.error('Erro no envio:', error);
     }
 });
 
+// ### FUNÇÃO ATUALIZADA ###
 async function carregarTrocas() {
     loadingMessage.style.display = 'block';
     tradeListTbody.innerHTML = '';
-
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
+        if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
         const trocas = await response.json();
-
         if (trocas.length === 0) {
             tradeListTbody.innerHTML = '<tr><td colspan="8">Nenhuma solicitação de troca registrada ainda.</td></tr>';
         } else {
             trocas.forEach(troca => {
                 const tr = document.createElement('tr');
+                let statusCell = '<td>-</td>';
+
                 if (troca.status === 'Concluída') {
                     tr.classList.add('concluida');
+                    statusCell = `<td class="status-concluida">✔ Sim</td>`;
+                } else if (troca.status === 'Ativa' && troca.rowNumber && troca.idFuncional) {
+                    statusCell = `
+                        <td>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="check-${troca.rowNumber}" onchange="marcarComoConcluida(this, ${troca.rowNumber}, '${troca.idFuncional}')">
+                                <label for="check-${troca.rowNumber}">Sim</label>
+                            </div>
+                        </td>`;
+                } else {
+                    statusCell = '<td>Ativa</td>';
                 }
 
-                const statusCell = (troca.status === 'Concluída') 
-                    ? `<td>Concluída</td>` 
-                    : `<td><button class="complete-btn" onclick="marcarComoConcluida(${troca.rowNumber}, '${troca.idFuncional}')">CONCLUIR</button></td>`;
-
+                // Ajuste no nome da coluna de 'contato' para 'celular'
                 tr.innerHTML = `
                     <td>${formatarData(troca.data)}</td>
                     <td>${troca.nomeGuerra || '-'}</td>
+                    <td>${troca.contato || '-'}</td>
                     <td>${troca.secao || '-'}</td>
                     <td>${troca.item || '-'}</td>
                     <td>${troca.tamanhoTenho || '-'}</td>
                     <td>${troca.tamanhoPreciso || '-'}</td>
-                    <td>${troca.contato || '-'}</td>
                     ${statusCell}
                 `;
                 tradeListTbody.appendChild(tr);
             });
         }
     } catch (error) {
-        tradeListTbody.innerHTML = '<tr><td colspan="8">Erro ao carregar a lista de trocas.</td></tr>';
-        console.error('Erro ao carregar trocas:', error);
+        tradeListTbody.innerHTML = `<tr><td colspan="8">Erro ao carregar a lista de trocas.</td></tr>`;
+        console.error('Erro detalhado ao carregar trocas:', error);
     } finally {
         loadingMessage.style.display = 'none';
     }
 }
 
-async function marcarComoConcluida(rowNumber, originalId) {
-    const verifierId = prompt("Para confirmar, por favor, digite sua ID Funcional:");
-
-    if (!verifierId) return; // Usuário cancelou
-
-    if (verifierId.trim() !== originalId.toString()) {
-        alert("Erro: A ID Funcional digitada não corresponde à do militar que criou esta solicitação.");
+// ### FUNÇÃO ATUALIZADA ###
+async function marcarComoConcluida(checkboxElement, rowNumber, originalId) {
+    // 1. Só continua se a caixa foi MARCADA
+    if (!checkboxElement.checked) {
         return;
     }
 
-    const data = {
-        action: 'updateStatus',
-        rowNumber: rowNumber,
-        verifierId: verifierId.trim()
-    };
+    // 2. Pede a confirmação com a ID
+    const verifierId = prompt("Para confirmar a troca, por favor, digite a ID Funcional do militar que criou a solicitação:");
 
+    // 3. Se o usuário cancelar ou a ID for inválida, desmarca a caixa e para a execução
+    if (!verifierId) {
+        checkboxElement.checked = false;
+        return;
+    }
+    if (verifierId.trim() != originalId.toString()) {
+        alert("ID Funcional não corresponde. A troca não foi marcada como concluída.");
+        checkboxElement.checked = false;
+        return;
+    }
+    
+    // 4. Prepara os dados para enviar ao script
+    const data = { action: 'updateStatus', rowNumber: rowNumber, verifierId: verifierId.trim() };
+
+    // 5. Envia a requisição
     try {
-        // Usamos 'cors' aqui para poder ler a resposta do servidor
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'cors',
@@ -379,20 +392,21 @@ async function marcarComoConcluida(rowNumber, originalId) {
             body: JSON.stringify(data),
             redirect: 'follow'
         });
-
+        
         const result = await response.json();
 
         if (result.status === 'success') {
             alert("Troca marcada como concluída com sucesso!");
-            carregarTrocas(); // Recarrega a lista para mostrar a mudança
+            carregarTrocas(); // Recarrega a lista para mostrar a mudança visual
         } else {
-            throw new Error(result.message || "Erro desconhecido.");
+            throw new Error(result.message || "Erro desconhecido do servidor.");
         }
     } catch (error) {
         console.error("Erro ao atualizar:", error);
         alert(`Não foi possível marcar como concluída. Erro: ${error.message}`);
+        // 6. Se der erro no envio, desmarca a caixa
+        checkboxElement.checked = false;
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', carregarTrocas);
