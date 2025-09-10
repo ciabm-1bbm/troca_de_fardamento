@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troca de Fardamento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Plataforma de Troca de Fardamento</h1>
+
+        <div class="card">
+            <h2>1. Identificação</h2>
+            <p>Digite sua ID Funcional para carregar seus dados.</p>
+            <input type="text" id="idInput" placeholder="Digite sua ID Funcional">
+            <div id="userInfo" class="user-info-hidden">
+                <p><strong>Posto/Grad:</strong> <span id="userGraduacao"></span></p>
+                <p><strong>Nome de Guerra:</strong> <span id="userNome"></span></p>
+                <p><strong>Seção:</strong> <span id="userSecao"></span></p>
+            </div>
+        </div>
+
+        <div id="tradeSection" class="card trade-section-hidden">
+            <h2>2. Solicitar Troca</h2>
+            <p>Selecione o item que deseja trocar, o tamanho que você tem e o tamanho que precisa.</p>
+            <form id="tradeForm">
+                <div class="form-group">
+                    <label for="itemSelect">Item para Troca:</label>
+                    <select id="itemSelect" required>
+                        <option value="" disabled selected>-- Selecione um item --</option>
+                        <option value="Camiseta">Camiseta</option>
+                        <option value="Gandola">Gandola</option>
+                        <option value="Calça Farda">Calça Farda</option>
+                        <option value="Cobertura">Cobertura</option>
+                        <option value="Parká">Parká</option>
+                    </select>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="form-group">
+                        <label for="tamanhoTenho">Tamanho que EU TENHO:</label>
+                        <select id="tamanhoTenho" required>
+                            <option value="P">P</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                            <option value="GG">GG</option>
+                            <option value="XG">XG</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tamanhoPreciso">Tamanho que EU PRECISO:</label>
+                        <select id="tamanhoPreciso" required>
+                            <option value="P">P</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                            <option value="GG">GG</option>
+                            <option value="XG">XG</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label for="contatoInput">Seu Contato (Ramal ou Telefone - Opcional):</label>
+                    <input type="text" id="contatoInput" placeholder="Ex: Ramal 123 ou (51) 9....">
+                </div>
+
+                <button type="submit">Registrar Solicitação de Troca</button>
+            </form>
+            <div id="formMessage"></div>
+        </div>
+
+        <div class="card">
+            <h2>3. Lista de Solicitações Ativas</h2>
+            <p>Veja abaixo as solicitações de troca de outros militares.</p>
+            <div id="loadingMessage">Carregando lista de trocas...</div>
+            <table id="tradeTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Militar</th>
+                        <th>Item</th>
+                        <th>Tem o Tamanho</th>
+                        <th>Precisa do Tamanho</th>
+                        <th>Contato</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeList">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
