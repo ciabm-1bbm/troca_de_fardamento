@@ -1,5 +1,5 @@
 // #################### CONFIGURAÇÃO ####################
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/library/d/1IHX00BlJ_RRoe4IxjZTwKvdyQqy2tRbRwPB8QttwmhcOLbZcvGXFbxWp/15';
 
 // LISTA DE MILITARES (a sua lista completa vai aqui)
 const dadosMilitares = [
@@ -403,3 +403,4 @@ async function marcarComoConcluida(rowNumber, originalId) {
 }
 
 document.addEventListener('DOMContentLoaded', carregarTrocas);
+
