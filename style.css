@@ -1,237 +1,168 @@
-/* --- CONFIGURAÇÕES GERAIS E CORES --- */
-:root {
-    --primary-color: #008ed6;
-    --dark-color: #333;
-    --light-gray-color: #f4f4f4;
-    --white-color: #fff;
-    --border-color: #ddd;
-    --success-color: #28a745;
-    --grayed-out-color: #bbb;
-}
-
+/* Estilos Gerais */
 body {
     font-family: 'Open Sans', sans-serif;
-    background-color: var(--light-gray-color);
-    color: var(--dark-color);
-    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
     margin: 0;
-    padding: 0;
-    -webkit-text-size-adjust: 100%;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 950px; /* Aumentei um pouco para a nova coluna */
+    max-width: 1100px;
     margin: auto;
-    padding: 20px;
+    overflow: hidden;
+    padding: 0 20px;
 }
 
-/* --- CABEÇALHO --- */
+/* Cabeçalho */
 #main-header {
-    background: var(--dark-color);
-    color: var(--white-color);
+    background-color: #c00000; /* Vermelho bombeiro */
+    color: #fff;
     padding: 20px 0;
     text-align: center;
-    border-bottom: 5px solid var(--primary-color);
-    margin-bottom: 20px;
+    border-bottom: 5px solid #8b0000;
 }
 
 #main-header h1 {
     font-family: 'Oswald', sans-serif;
     margin: 0;
     font-size: 2.5rem;
-    text-transform: uppercase;
 }
 
 #main-header h2 {
-    font-family: 'Open Sans', sans-serif;
-    margin: 5px 0 0 0;
-    font-size: 1rem;
+    margin: 0;
+    font-size: 1.2rem;
     font-weight: 400;
-    color: #ccc;
 }
 
-
-/* --- TÍTULOS E TEXTOS --- */
-h2 {
-    font-family: 'Oswald', sans-serif;
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-}
-
-p {
-    margin: 0 0 15px 0;
-}
-
-/* --- CARDS E FORMULÁRIOS --- */
+/* Cards */
 .card {
-    background-color: var(--white-color);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-top: 25px;
 }
 
-label {
+.card h2 {
+    font-family: 'Oswald', sans-serif;
+    color: #c00000;
+    margin-top: 0;
+}
+
+/* Formulário */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-input[type="text"], select {
+input[type="text"], input[type="tel"], select {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    border: 1px solid var(--border-color);
-    box-sizing: border-box; 
-    font-size: 16px;
-    font-family: 'Open Sans', sans-serif;
-}
-
-input[type="text"]:focus, select:focus {
-    outline: 2px solid var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-group {
-    margin-bottom: 15px;
+    box-sizing: border-box; /* Garante que padding não afete a largura total */
 }
 
 .form-group-inline {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .form-group-inline .form-group {
-    width: 100%;
+    flex: 1;
 }
 
-.user-info-hidden {
-    display: none;
-}
-
-.user-info-visible {
-    display: block;
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #e9f5e9;
-    border-left: 5px solid var(--success-color);
-}
-
-#formMessage {
-    margin-top: 15px;
-    font-weight: bold;
-    text-align: center;
-}
-
-/* --- BOTÕES --- */
-.button {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background: var(--primary-color);
-    color: var(--white-color);
+/* Botões */
+.button, .action-button {
+    display: inline-block;
+    background: #28a745; /* Verde */
+    color: #fff;
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    text-align: center;
+    font-size: 1rem;
     font-weight: bold;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .button:hover {
-    background-color: #0072b0;
+    background: #218838;
 }
 
-.complete-btn {
-    background-color: var(--success-color);
-    color: var(--white-color);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.complete-btn:hover {
-    background-color: #218838;
-}
-
-/* --- TABELA RESPONSIVA --- */
+/* Tabela */
 .table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: auto; /* Adiciona scroll horizontal em telas pequenas */
 }
 
-table {
+#tradeTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    min-width: 800px;
 }
 
-th, td {
-    padding: 12px 10px;
-    border: 1px solid var(--border-color);
+#tradeTable th, #tradeTable td {
+    border: 1px solid #ddd;
+    padding: 12px;
     text-align: left;
-    white-space: nowrap;
 }
 
-th {
-    background-color: var(--light-gray-color);
+#tradeTable th {
+    background-color: #333;
+    color: white;
     font-family: 'Oswald', sans-serif;
-    font-weight: 400;
-    text-transform: uppercase;
-    font-size: 14px;
 }
 
-td {
-    font-size: 14px;
-}
-
-tr:nth-child(even) {
-    background-color: var(--white-color);
-}
-tr:nth-child(odd) {
+#tradeTable tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/* Estilo para a linha concluída */
-tr.concluida {
-    background-color: #f8f9fa;
-    color: var(--grayed-out-color);
+.concluida td {
+    background-color: #e0e0e0 !important;
+    color: #888;
     text-decoration: line-through;
 }
 
-tr.concluida .complete-btn {
-    display: none; /* Esconde o botão se a troca já foi concluída */
+.action-button {
+    background-color: #007bff; /* Azul */
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    width: auto;
+}
+.action-button:hover {
+    background-color: #0056b3;
+}
+.action-button.concluido {
+    background-color: #6c757d; /* Cinza */
+    cursor: not-allowed;
 }
 
 
-/* --- AJUSTES PARA CELULAR E TELAS MENORES --- */
-@media (max-width: 768px) {
-    #main-header h1 {
-        font-size: 1.8rem;
-    }
-    .container {
-        padding: 10px;
-    }
-    .card {
-        padding: 20px;
-    }
+/* Classes de visibilidade */
+.user-info-hidden, .trade-section-hidden {
+    display: none;
 }
 
-@media (min-width: 600px) {
-    .form-group-inline {
-        flex-direction: row;
-        justify-content: space-between;
-        gap: 20px;
-    }
+/* Mensagens de feedback */
+#formMessage {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
 }
