@@ -307,14 +307,158 @@ tradeForm.addEventListener('submit', async (e) => {
     }
 });
 
-// ### FUNÇÃO ATUALIZADA ###
+// #################### CONFIGURAÇÃO ####################
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye70-pcq58IWPIsLXX1g9l-zj7WTi9rqXMMlzDWT-CP0bQ9tbF5f0w3DREuNGlK12j/exec';
+
+// LISTA DE MILITARES (a sua lista completa vai aqui)
+const dadosMilitares = [
+    { idFuncional: "4279310", graduacao: "Cap", nomeGuerra: "MARTINS", secao: "CMT CIA" },
+    // ... cole sua lista completa de 179 militares aqui ...
+    { idFuncional: "4490835", graduacao: "SD BMT", nomeGuerra: "AMARANTE", secao: "AUTO RESGATE" }
+];
+
+// OPÇÕES DE TAMANHO PARA CADA ITEM
+const tamanhosPorItem = {
+    "Camiseta": ["P", "M", "G", "GG", "XGG"],
+    "Gandola": ["1", "2", "3", "4", "5", "6", "7"],
+    "Calça Farda": ["38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60"],
+    "Cobertura": ["54", "55", "56", "57", "58", "59", "60", "61", "62"],
+    "Parká": ["PP", "P", "M", "G", "GG", "XGG"]
+};
+// ######################################################
+
+
+// --- LÓGICA DA APLICAÇÃO ---
+
+const idInput = document.getElementById('idInput');
+const userInfoDiv = document.getElementById('userInfo');
+const userGraduacaoSpan = document.getElementById('userGraduacao');
+const userNomeSpan = document.getElementById('userNome');
+const userSecaoSpan = document.getElementById('userSecao');
+const tradeSectionDiv = document.getElementById('tradeSection');
+const tradeForm = document.getElementById('tradeForm');
+const formMessage = document.getElementById('formMessage');
+const tradeListTbody = document.getElementById('tradeList');
+const loadingMessage = document.getElementById('loadingMessage');
+const itemSelect = document.getElementById('itemSelect');
+const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
+const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
+
+let militarLogado = null; 
+
+function formatarData(dataString) {
+    if (!dataString) return '-';
+    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const data = new Date(dataString);
+    const dia = data.getDate();
+    const mes = meses[data.getMonth()];
+    return `${dia}/${mes}`;
+}
+
+function atualizarOpcoesDeTamanho() {
+    const itemSelecionado = itemSelect.value;
+    const tamanhos = tamanhosPorItem[itemSelecionado] || [];
+    tamanhoTenhoSelect.innerHTML = '';
+    tamanhoPrecisoSelect.innerHTML = '';
+
+    if (tamanhos.length > 0) {
+        tamanhoTenhoSelect.disabled = false;
+        tamanhoPrecisoSelect.disabled = false;
+        tamanhoTenhoSelect.add(new Option("-- Selecione --", ""));
+        tamanhoPrecisoSelect.add(new Option("-- Selecione --", ""));
+        
+        tamanhos.filter(t => t).forEach(tamanho => {
+            tamanhoTenhoSelect.add(new Option(tamanho, tamanho));
+            tamanhoPrecisoSelect.add(new Option(tamanho, tamanho));
+        });
+    } else {
+        tamanhoTenhoSelect.disabled = true;
+        tamanhoPrecisoSelect.disabled = true;
+        tamanhoTenhoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
+        tamanhoPrecisoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
+    }
+}
+
+itemSelect.addEventListener('change', atualizarOpcoesDeTamanho);
+
+idInput.addEventListener('input', () => {
+    const id = idInput.value;
+    const militarEncontrado = dadosMilitares.find(m => m.idFuncional === id);
+
+    if (militarEncontrado) {
+        militarLogado = militarEncontrado;
+        userGraduacaoSpan.textContent = militarEncontrado.graduacao;
+        userNomeSpan.textContent = militarEncontrado.nomeGuerra;
+        userSecaoSpan.textContent = militarEncontrado.secao;
+        userInfoDiv.className = 'user-info-visible';
+        tradeSectionDiv.className = 'card trade-section-visible';
+    } else {
+        militarLogado = null;
+        userInfoDiv.className = 'user-info-hidden';
+        tradeSectionDiv.className = 'card trade-section-hidden';
+    }
+});
+
+tradeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!militarLogado) {
+        alert("Por favor, insira uma ID Funcional válida primeiro.");
+        return;
+    }
+    
+    const formData = {
+        action: 'create',
+        idFuncional: militarLogado.idFuncional,
+        nomeGuerra: militarLogado.nomeGuerra,
+        secao: militarLogado.secao,
+        item: document.getElementById('itemSelect').value,
+        tamanhoTenho: document.getElementById('tamanhoTenho').value,
+        tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
+        contato: document.getElementById('contatoInput').value,
+    };
+
+    if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
+        alert("Por favor, preencha todos os campos para a troca.");
+        return;
+    }
+
+    formMessage.textContent = 'Enviando...';
+
+    try {
+        // Usamos 'cors' aqui para poder ler a resposta do servidor, o que é mais robusto
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData),
+            redirect: 'follow'
+        });
+
+        // Mesmo que a resposta não seja lida, o envio é mais confiável assim
+        formMessage.style.color = 'green';
+        formMessage.textContent = 'Solicitação de troca registrada com sucesso!';
+        tradeForm.reset();
+        atualizarOpcoesDeTamanho();
+        setTimeout(carregarTrocas, 2000);
+
+    } catch (error) {
+        formMessage.style.color = 'red';
+        formMessage.textContent = 'Erro ao registrar a solicitação. Tente novamente.';
+        console.error('Erro no envio:', error);
+    }
+});
+
 async function carregarTrocas() {
     loadingMessage.style.display = 'block';
     tradeListTbody.innerHTML = '';
+
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+        
         const trocas = await response.json();
+
         if (trocas.length === 0) {
             tradeListTbody.innerHTML = '<tr><td colspan="8">Nenhuma solicitação de troca registrada ainda.</td></tr>';
         } else {
@@ -324,28 +468,21 @@ async function carregarTrocas() {
 
                 if (troca.status === 'Concluída') {
                     tr.classList.add('concluida');
-                    statusCell = `<td class="status-concluida">✔ Sim</td>`;
+                    statusCell = `<td>Concluída</td>`;
                 } else if (troca.status === 'Ativa' && troca.rowNumber && troca.idFuncional) {
-                    statusCell = `
-                        <td>
-                            <div class="checkbox-container">
-                                <input type="checkbox" id="check-${troca.rowNumber}" onchange="marcarComoConcluida(this, ${troca.rowNumber}, '${troca.idFuncional}')">
-                                <label for="check-${troca.rowNumber}">Sim</label>
-                            </div>
-                        </td>`;
+                    statusCell = `<td><button class="complete-btn" onclick="marcarComoConcluida(${troca.rowNumber}, '${troca.idFuncional}')">CONCLUIR</button></td>`;
                 } else {
                     statusCell = '<td>Ativa</td>';
                 }
 
-                // Ajuste no nome da coluna de 'contato' para 'celular'
                 tr.innerHTML = `
                     <td>${formatarData(troca.data)}</td>
                     <td>${troca.nomeGuerra || '-'}</td>
-                    <td>${troca.contato || '-'}</td>
                     <td>${troca.secao || '-'}</td>
                     <td>${troca.item || '-'}</td>
                     <td>${troca.tamanhoTenho || '-'}</td>
                     <td>${troca.tamanhoPreciso || '-'}</td>
+                    <td>${troca.contato || '-'}</td>
                     ${statusCell}
                 `;
                 tradeListTbody.appendChild(tr);
@@ -359,35 +496,26 @@ async function carregarTrocas() {
     }
 }
 
-// ### FUNÇÃO ATUALIZADA ###
-async function marcarComoConcluida(checkboxElement, rowNumber, originalId) {
-    // 1. Só continua se a caixa foi MARCADA
-    if (!checkboxElement.checked) {
-        return;
-    }
+async function marcarComoConcluida(rowNumber, originalId) {
+    const verifierId = prompt("Para confirmar, por favor, digite a ID Funcional do militar que criou a solicitação:");
 
-    // 2. Pede a confirmação com a ID
-    const verifierId = prompt("Para confirmar a troca, por favor, digite a ID Funcional do militar que criou a solicitação:");
+    if (!verifierId) return;
 
-    // 3. Se o usuário cancelar ou a ID for inválida, desmarca a caixa e para a execução
-    if (!verifierId) {
-        checkboxElement.checked = false;
-        return;
-    }
+    // A verificação agora é feita no Google Script, mas podemos fazer uma checagem rápida aqui
     if (verifierId.trim() != originalId.toString()) {
-        alert("ID Funcional não corresponde. A troca não foi marcada como concluída.");
-        checkboxElement.checked = false;
-        return;
+        alert("A ID Funcional digitada parece ser diferente da original. A verificação final será feita no servidor.");
     }
     
-    // 4. Prepara os dados para enviar ao script
-    const data = { action: 'updateStatus', rowNumber: rowNumber, verifierId: verifierId.trim() };
+    const data = {
+        action: 'updateStatus',
+        rowNumber: rowNumber,
+        verifierId: verifierId.trim()
+    };
 
-    // 5. Envia a requisição
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'cors',
+            mode: 'cors', // Necessário para ler a resposta de sucesso/erro
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data),
             redirect: 'follow'
@@ -397,15 +525,13 @@ async function marcarComoConcluida(checkboxElement, rowNumber, originalId) {
 
         if (result.status === 'success') {
             alert("Troca marcada como concluída com sucesso!");
-            carregarTrocas(); // Recarrega a lista para mostrar a mudança visual
+            carregarTrocas();
         } else {
             throw new Error(result.message || "Erro desconhecido do servidor.");
         }
     } catch (error) {
         console.error("Erro ao atualizar:", error);
         alert(`Não foi possível marcar como concluída. Erro: ${error.message}`);
-        // 6. Se der erro no envio, desmarca a caixa
-        checkboxElement.checked = false;
     }
 }
 
