@@ -1,8 +1,25 @@
-// #################### CONFIGURAÇÃO ####################
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/library/d/1IHX00BlJ_RRoe4IxjZTwKvdyQqy2tRbRwPB8QttwmhcOLbZcvGXFbxWp/15';
+document.addEventListener('DOMContentLoaded', () => {
 
-// LISTA DE MILITARES (a sua lista completa vai aqui)
-const dadosMilitares = [
+    // URL do seu Web App publicado no Google Apps Script.
+    // IMPORTANTE: Cole a URL correta aqui!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU7B13uH-f3D43K818oGz5rIuI12z3WzO-5nI6q8d7F9t0G1k2J3p4L5v/exec";
+
+    // Mapeamento dos elementos do HTML para variáveis
+    const idInput = document.getElementById('idInput');
+    const userInfoDiv = document.getElementById('userInfo');
+    const tradeSectionDiv = document.getElementById('tradeSection');
+    const itemSelect = document.getElementById('itemSelect');
+    const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
+    const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
+    const tradeForm = document.getElementById('tradeForm');
+    const tradeListBody = document.getElementById('tradeList');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const formMessage = document.getElementById('formMessage');
+
+     // --- BASE DE DADOS SIMULADA ---
+    // Em um sistema real, isso viria de um banco de dados ou outra planilha.
+    // Por enquanto, usaremos este objeto para encontrar os dados do militar.
+   const dadosMilitares = [
     { idFuncional: "4279310", graduacao: "Cap", nomeGuerra: "MARTINS", secao: "CMT CIA" },
     { idFuncional: "3146316", graduacao: "Cap", nomeGuerra: "LOPES", secao: "CMT CIA" },
     { idFuncional: "3696790", graduacao: "2º Sgt", nomeGuerra: "DA COSTA", secao: "CIA" },
@@ -184,223 +201,238 @@ const dadosMilitares = [
     { idFuncional: "4490835", graduacao: "SD BMT", nomeGuerra: "AMARANTE", secao: "AUTO RESGATE" }
 ];
 
-// OPÇÕES DE TAMANHO PARA CADA ITEM
-const tamanhosPorItem = {
-    "Camiseta": ["P", "M", "G", "GG", "XGG"],
-    "Gandola": ["1", "2", "3", "4", "5", "6", "7"],
-    "Calça Farda": ["38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60"],
-    "Cobertura": ["54", "55", "56", "57", "58", "59", "60", "61", "62"],
-    "Parká": ["PP", "P", "M", "G", "GG", "XGG"]
-};
-// ######################################################
-
-
-// --- LÓGICA DA APLICAÇÃO ---
-
-const idInput = document.getElementById('idInput');
-const userInfoDiv = document.getElementById('userInfo');
-const userGraduacaoSpan = document.getElementById('userGraduacao');
-const userNomeSpan = document.getElementById('userNome');
-const userSecaoSpan = document.getElementById('userSecao');
-const tradeSectionDiv = document.getElementById('tradeSection');
-const tradeForm = document.getElementById('tradeForm');
-const formMessage = document.getElementById('formMessage');
-const tradeListTbody = document.getElementById('tradeList');
-const loadingMessage = document.getElementById('loadingMessage');
-const itemSelect = document.getElementById('itemSelect');
-const tamanhoTenhoSelect = document.getElementById('tamanhoTenho');
-const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
-
-let militarLogado = null; 
-
-function formatarData(dataString) {
-    if (!dataString) return '-';
-    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const data = new Date(dataString);
-    const dia = data.getDate();
-    const mes = meses[data.getMonth()];
-    return `${dia}/${mes}`;
-}
-
-function atualizarOpcoesDeTamanho() {
-    const itemSelecionado = itemSelect.value;
-    const tamanhos = tamanhosPorItem[itemSelecionado] || [];
-    tamanhoTenhoSelect.innerHTML = '';
-    tamanhoPrecisoSelect.innerHTML = '';
-
-    if (tamanhos.length > 0) {
-        tamanhoTenhoSelect.disabled = false;
-        tamanhoPrecisoSelect.disabled = false;
-        tamanhoTenhoSelect.add(new Option("-- Selecione --", ""));
-        tamanhoPrecisoSelect.add(new Option("-- Selecione --", ""));
-        
-        tamanhos.filter(t => t).forEach(tamanho => {
-            tamanhoTenhoSelect.add(new Option(tamanho, tamanho));
-            tamanhoPrecisoSelect.add(new Option(tamanho, tamanho));
-        });
-    } else {
-        tamanhoTenhoSelect.disabled = true;
-        tamanhoPrecisoSelect.disabled = true;
-        tamanhoTenhoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
-        tamanhoPrecisoSelect.add(new Option("-- Primeiro, escolha um item --", ""));
-    }
-}
-
-itemSelect.addEventListener('change', atualizarOpcoesDeTamanho);
-
-idInput.addEventListener('input', () => {
-    const id = idInput.value;
-    const militarEncontrado = dadosMilitares.find(m => m.idFuncional === id);
-
-    if (militarEncontrado) {
-        militarLogado = militarEncontrado;
-        userGraduacaoSpan.textContent = militarEncontrado.graduacao;
-        userNomeSpan.textContent = militarEncontrado.nomeGuerra;
-        userSecaoSpan.textContent = militarEncontrado.secao;
-        userInfoDiv.className = 'user-info-visible';
-        tradeSectionDiv.className = 'card trade-section-visible';
-    } else {
-        militarLogado = null;
-        userInfoDiv.className = 'user-info-hidden';
-        tradeSectionDiv.className = 'card trade-section-hidden';
-    }
-});
-
-tradeForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!militarLogado) {
-        alert("Por favor, insira uma ID Funcional válida primeiro.");
-        return;
-    }
-    
-    const formData = {
-        action: 'create',
-        idFuncional: militarLogado.idFuncional,
-        nomeGuerra: militarLogado.nomeGuerra,
-        secao: militarLogado.secao,
-        item: document.getElementById('itemSelect').value,
-        tamanhoTenho: document.getElementById('tamanhoTenho').value,
-        tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
-        contato: document.getElementById('contatoInput').value,
+    // --- TAMANHOS DISPONÍVEIS POR ITEM ---
+    const tamanhosPorItem = {
+        "Camiseta": ["P", "M", "G", "GG", "XG"],
+        "Gandola": ["P", "M", "G", "GG", "XG"],
+        "Calça Farda": ["38", "40", "42", "44", "46", "48"],
+        "Cobertura": ["55", "56", "57", "58", "59", "60"],
+        "Parká": ["P", "M", "G", "GG"]
     };
 
-    if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
-        alert("Por favor, preencha todos os campos para a troca.");
-        return;
+    // --- FUNÇÕES ---
+
+    /**
+     * Busca e exibe os dados do militar baseado na ID funcional.
+     */
+    function buscarMilitar() {
+        const id = idInput.value;
+        const militar = militaresDB[id];
+
+        if (militar) {
+            document.getElementById('userGraduacao').textContent = militar.graduacao;
+            document.getElementById('userNome').textContent = militar.nome;
+            document.getElementById('userSecao').textContent = militar.secao;
+            userInfoDiv.classList.remove('user-info-hidden');
+            tradeSectionDiv.classList.remove('trade-section-hidden');
+        } else {
+            userInfoDiv.classList.add('user-info-hidden');
+            tradeSectionDiv.classList.add('trade-section-hidden');
+        }
     }
 
-    formMessage.textContent = 'Enviando...';
+    /**
+     * Popula os seletores de tamanho baseado no item escolhido.
+     * @param {string} item O nome do item selecionado.
+     */
+    function popularTamanhos(item) {
+        const tamanhos = tamanhosPorItem[item] || [];
+        
+        // Limpa os seletores atuais
+        tamanhoTenhoSelect.innerHTML = '<option value="" disabled selected>-- Selecione --</option>';
+        tamanhoPrecisoSelect.innerHTML = '<option value="" disabled selected>-- Selecione --</option>';
 
-    try {
-        // Usamos 'cors' aqui para poder ler a resposta do servidor, o que é mais robusto
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(formData),
-            redirect: 'follow'
+        // Adiciona as novas opções de tamanho
+        tamanhos.forEach(tamanho => {
+            tamanhoTenhoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
+            tamanhoPrecisoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
         });
 
-        // Mesmo que a resposta não seja lida, o envio é mais confiável assim
-        formMessage.style.color = 'green';
-        formMessage.textContent = 'Solicitação de troca registrada com sucesso!';
-        tradeForm.reset();
-        atualizarOpcoesDeTamanho();
-        setTimeout(carregarTrocas, 2000);
-
-    } catch (error) {
-        formMessage.style.color = 'red';
-        formMessage.textContent = 'Erro ao registrar a solicitação. Tente novamente.';
-        console.error('Erro no envio:', error);
+        // Habilita os seletores
+        tamanhoTenhoSelect.disabled = false;
+        tamanhoPrecisoSelect.disabled = false;
     }
-});
 
-async function carregarTrocas() {
-    loadingMessage.style.display = 'block';
-    tradeListTbody.innerHTML = '';
+    /**
+     * Busca a lista de trocas na planilha e exibe na tabela.
+     */
+    async function carregarListaDeTrocas() {
+        loadingMessage.style.display = 'block';
+        tradeListBody.innerHTML = ''; // Limpa a tabela antes de carregar
 
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL);
-        if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
-        
-        const trocas = await response.json();
+        try {
+            const response = await fetch(SCRIPT_URL);
+            if (!response.ok) throw new Error('Erro de rede ao buscar dados.');
+            
+            const data = await response.json();
+            
+            if (data.length === 0) {
+                 loadingMessage.textContent = "Nenhuma solicitação de troca encontrada.";
+                 return;
+            }
 
-        if (trocas.length === 0) {
-            tradeListTbody.innerHTML = '<tr><td colspan="8">Nenhuma solicitação de troca registrada ainda.</td></tr>';
-        } else {
-            trocas.forEach(troca => {
+            data.forEach(item => {
                 const tr = document.createElement('tr');
-                let statusCell = '<td>-</td>';
-
-                if (troca.status === 'Concluída') {
+                
+                // Formata a data para o padrão brasileiro
+                const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR');
+                
+                // Adiciona a classe 'concluida' se o status for "Concluída"
+                if (item.status === 'Concluída') {
                     tr.classList.add('concluida');
-                    statusCell = `<td>Concluída</td>`;
-                } else if (troca.status === 'Ativa' && troca.rowNumber && troca.idFuncional) {
-                    statusCell = `<td><button class="complete-btn" onclick="marcarComoConcluida(${troca.rowNumber}, '${troca.idFuncional}')">CONCLUIR</button></td>`;
-                } else {
-                    statusCell = '<td>Ativa</td>';
                 }
 
                 tr.innerHTML = `
-                    <td>${formatarData(troca.data)}</td>
-                    <td>${troca.nomeGuerra || '-'}</td>
-                    <td>${troca.secao || '-'}</td>
-                    <td>${troca.item || '-'}</td>
-                    <td>${troca.tamanhoTenho || '-'}</td>
-                    <td>${troca.tamanhoPreciso || '-'}</td>
-                    <td>${troca.contato || '-'}</td>
-                    ${statusCell}
+                    <td>${dataFormatada}</td>
+                    <td>${item.nomeGuerra}</td>
+                    <td>${item.contato || 'N/A'}</td>
+                    <td>${item.secao}</td>
+                    <td>${item.item}</td>
+                    <td>${item.tamanhoTenho}</td>
+                    <td>${item.tamanhoPreciso}</td>
+                    <td>
+                        <button 
+                            class="action-button ${item.status === 'Concluída' ? 'concluido' : ''}" 
+                            data-row="${item.rowNumber}" 
+                            ${item.status === 'Concluída' ? 'disabled' : ''}>
+                            ${item.status === 'Concluída' ? 'Concluído' : 'Concluir'}
+                        </button>
+                    </td>
                 `;
-                tradeListTbody.appendChild(tr);
+                tradeListBody.appendChild(tr);
             });
+
+            loadingMessage.style.display = 'none';
+
+        } catch (error) {
+            loadingMessage.textContent = `Falha ao carregar a lista: ${error.message}`;
+            console.error("Erro ao buscar trocas:", error);
         }
-    } catch (error) {
-        tradeListTbody.innerHTML = `<tr><td colspan="8">Erro ao carregar a lista de trocas.</td></tr>`;
-        console.error('Erro detalhado ao carregar trocas:', error);
-    } finally {
-        loadingMessage.style.display = 'none';
     }
-}
 
-async function marcarComoConcluida(rowNumber, originalId) {
-    const verifierId = prompt("Para confirmar, por favor, digite a ID Funcional do militar que criou a solicitação:");
+    /**
+     * Envia os dados do formulário para a planilha.
+     * @param {Event} e O evento de submit do formulário.
+     */
+    async function registrarTroca(e) {
+        e.preventDefault(); // Impede o recarregamento da página
 
-    if (!verifierId) return;
+        const idFuncional = idInput.value;
+        const militar = militaresDB[idFuncional];
 
-    // A verificação agora é feita no Google Script, mas podemos fazer uma checagem rápida aqui
-    if (verifierId.trim() != originalId.toString()) {
-        alert("A ID Funcional digitada parece ser diferente da original. A verificação final será feita no servidor.");
+        // Validação básica
+        if (!militar) {
+            exibirMensagem("ID Funcional inválida.", "error");
+            return;
+        }
+        if (tamanhoTenhoSelect.value === tamanhoPrecisoSelect.value) {
+            exibirMensagem("O tamanho que você tem não pode ser igual ao que você precisa.", "error");
+            return;
+        }
+
+        // Monta o objeto com os dados a serem enviados
+        const dados = {
+            action: "create",
+            idFuncional: idFuncional,
+            nomeGuerra: militar.nome,
+            secao: militar.secao,
+            item: itemSelect.value,
+            tamanhoTenho: tamanhoTenhoSelect.value,
+            tamanhoPreciso: tamanhoPrecisoSelect.value,
+            contato: document.getElementById('contatoInput').value
+        };
+
+        // Envia os dados para o Google Apps Script
+        try {
+            exibirMensagem("Enviando solicitação...", "loading");
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(dados),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                exibirMensagem("Solicitação registrada com sucesso!", "success");
+                tradeForm.reset();
+                popularTamanhos(''); // Reseta e desabilita os seletores de tamanho
+                tamanhoTenhoSelect.disabled = true;
+                tamanhoPrecisoSelect.disabled = true;
+                carregarListaDeTrocas(); // Recarrega a lista
+            } else {
+                throw new Error(result.message || "Erro desconhecido.");
+            }
+        } catch (error) {
+            exibirMensagem(`Erro ao registrar: ${error.message}`, "error");
+        }
+    }
+
+    /**
+     * Atualiza o status de uma troca para "Concluída".
+     * @param {number} rowNumber O número da linha na planilha.
+     */
+    async function concluirTroca(rowNumber) {
+        const verifierId = prompt("Para confirmar, digite a ID Funcional de quem criou este anúncio:");
+        if (!verifierId) return; // Usuário cancelou
+
+        const dados = {
+            action: "updateStatus",
+            rowNumber: rowNumber,
+            verifierId: verifierId
+        };
+        
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(dados),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert("Troca marcada como concluída com sucesso!");
+                carregarListaDeTrocas(); // Recarrega a lista para mostrar a mudança
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            alert(`Falha ao atualizar: ${error.message}`);
+        }
     }
     
-    const data = {
-        action: 'updateStatus',
-        rowNumber: rowNumber,
-        verifierId: verifierId.trim()
-    };
-
-    try {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'cors', // Necessário para ler a resposta de sucesso/erro
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-            redirect: 'follow'
-        });
-        
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            alert("Troca marcada como concluída com sucesso!");
-            carregarTrocas();
-        } else {
-            throw new Error(result.message || "Erro desconhecido do servidor.");
-        }
-    } catch (error) {
-        console.error("Erro ao atualizar:", error);
-        alert(`Não foi possível marcar como concluída. Erro: ${error.message}`);
+    /**
+     * Exibe uma mensagem de feedback para o usuário.
+     * @param {string} msg A mensagem a ser exibida.
+     * @param {string} type O tipo de mensagem ('success', 'error', 'loading').
+     */
+    function exibirMensagem(msg, type) {
+        formMessage.textContent = msg;
+        formMessage.className = type; // Remove classes antigas e adiciona a nova
     }
-}
 
-document.addEventListener('DOMContentLoaded', carregarTrocas);
 
+    // --- EVENT LISTENERS (OUVINTES DE EVENTOS) ---
+
+    // Quando o usuário digita no campo de ID
+    idInput.addEventListener('input', buscarMilitar);
+
+    // Quando o usuário seleciona um item no formulário
+    itemSelect.addEventListener('change', () => popularTamanhos(itemSelect.value));
+
+    // Quando o formulário de troca é enviado
+    tradeForm.addEventListener('submit', registrarTroca);
+    
+    // Delegação de evento para os botões "Concluir" na tabela
+    tradeListBody.addEventListener('click', (e) => {
+        // Verifica se o clique foi em um botão de ação que não esteja desabilitado
+        if (e.target.classList.contains('action-button') && !e.target.disabled) {
+            const row = e.target.dataset.row;
+            concluirTroca(row);
+        }
+    });
+
+    // Carrega a lista de trocas assim que a página é aberta
+    carregarListaDeTrocas();
+});
