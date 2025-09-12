@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // URL do seu Web App publicado no Google Apps Script.
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU7B13uH-f3D43K818oGz5rIuI12z3WzO-5nI6q8d7F9t0G1k2J3p4L5v/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVh9elcj4HhZU09sFBiR2Dkt4nzlMD4yqJkcHEfnfgclrZ4qVaSamdu3UgcXW488Dl/exec";
 
     // Mapeamento dos elementos do HTML para variáveis
     const idInput = document.getElementById('idInput');
@@ -426,3 +426,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     carregarListaDeTrocas();
 });
+
