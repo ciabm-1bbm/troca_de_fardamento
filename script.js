@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // URL do seu Web App publicado no Google Apps Script.
-    // IMPORTANTE: Cole a URL correta aqui!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVh9elcj4HhZU09sFBiR2Dkt4nzlMD4yqJkcHEfnfgclrZ4qVaSamdu3UgcXW488Dl/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU7B13uH-f3D43K818oGz5rIuI12z3WzO-5nI6q8d7F9t0G1k2J3p4L5v/exec";
 
     // Mapeamento dos elementos do HTML para variáveis
     const idInput = document.getElementById('idInput');
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const formMessage = document.getElementById('formMessage');
 
     // --- BASE DE DADOS COMPLETA DOS MILITARES ---
-    // A lista fornecida foi convertida para um objeto para busca rápida por ID.
     const dadosMilitares = [
         { idFuncional: "4279310", graduacao: "Cap", nomeGuerra: "MARTINS", secao: "CMT CIA" },
         { idFuncional: "3146316", graduacao: "Cap", nomeGuerra: "LOPES", secao: "CMT CIA" },
@@ -247,17 +245,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function popularTamanhos(item) {
         const tamanhos = tamanhosPorItem[item] || [];
         
-        // Limpa os seletores atuais
         tamanhoTenhoSelect.innerHTML = '<option value="" disabled selected>-- Selecione --</option>';
         tamanhoPrecisoSelect.innerHTML = '<option value="" disabled selected>-- Selecione --</option>';
 
-        // Adiciona as novas opções de tamanho
         tamanhos.forEach(tamanho => {
             tamanhoTenhoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
             tamanhoPrecisoSelect.innerHTML += `<option value="${tamanho}">${tamanho}</option>`;
         });
 
-        // Habilita os seletores
         tamanhoTenhoSelect.disabled = false;
         tamanhoPrecisoSelect.disabled = false;
     }
@@ -267,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function carregarListaDeTrocas() {
         loadingMessage.style.display = 'block';
-        tradeListBody.innerHTML = ''; // Limpa a tabela antes de carregar
+        tradeListBody.innerHTML = '';
 
         try {
             const response = await fetch(SCRIPT_URL);
@@ -282,23 +277,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             data.forEach(item => {
                 const tr = document.createElement('tr');
-                
-                // Formata a data para o padrão brasileiro
                 const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR');
                 
-                // Adiciona a classe 'concluida' se o status for "Concluída"
                 if (item.status === 'Concluída') {
                     tr.classList.add('concluida');
                 }
 
+                // *** A ORDEM DAS COLUNAS FOI ALTERADA AQUI ***
                 tr.innerHTML = `
                     <td>${dataFormatada}</td>
                     <td>${item.nomeGuerra}</td>
-                    <td>${item.contato || 'N/A'}</td>
                     <td>${item.secao}</td>
                     <td>${item.item}</td>
                     <td>${item.tamanhoTenho}</td>
                     <td>${item.tamanhoPreciso}</td>
+                    <td>${item.contato || 'N/A'}</td>
                     <td>
                         <button 
                             class="action-button ${item.status === 'Concluída' ? 'concluido' : ''}" 
@@ -324,12 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} e O evento de submit do formulário.
      */
     async function registrarTroca(e) {
-        e.preventDefault(); // Impede o recarregamento da página
+        e.preventDefault();
 
         const idFuncional = idInput.value;
         const militar = militaresDB[idFuncional];
 
-        // Validação básica
         if (!militar) {
             exibirMensagem("ID Funcional inválida.", "error");
             return;
@@ -339,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Monta o objeto com os dados a serem enviados
         const dados = {
             action: "create",
             idFuncional: idFuncional,
@@ -351,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
             contato: document.getElementById('contatoInput').value
         };
 
-        // Envia os dados para o Google Apps Script
         try {
             exibirMensagem("Enviando solicitação...", "loading");
             const response = await fetch(SCRIPT_URL, {
@@ -365,10 +355,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.status === "success") {
                 exibirMensagem("Solicitação registrada com sucesso!", "success");
                 tradeForm.reset();
-                popularTamanhos(''); // Reseta e desabilita os seletores de tamanho
+                popularTamanhos('');
                 tamanhoTenhoSelect.disabled = true;
                 tamanhoPrecisoSelect.disabled = true;
-                carregarListaDeTrocas(); // Recarrega a lista
+                carregarListaDeTrocas();
             } else {
                 throw new Error(result.message || "Erro desconhecido.");
             }
@@ -383,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function concluirTroca(rowNumber) {
         const verifierId = prompt("Para confirmar, digite a ID Funcional de quem criou este anúncio:");
-        if (!verifierId) return; // Usuário cancelou
+        if (!verifierId) return;
 
         const dados = {
             action: "updateStatus",
@@ -402,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.status === "success") {
                 alert("Troca marcada como concluída com sucesso!");
-                carregarListaDeTrocas(); // Recarrega a lista para mostrar a mudança
+                carregarListaDeTrocas();
             } else {
                 throw new Error(result.message);
             }
@@ -418,31 +408,21 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function exibirMensagem(msg, type) {
         formMessage.textContent = msg;
-        formMessage.className = type; // Remove classes antigas e adiciona a nova
+        formMessage.className = type;
     }
 
 
     // --- EVENT LISTENERS (OUVINTES DE EVENTOS) ---
-
-    // Quando o usuário digita no campo de ID
     idInput.addEventListener('input', buscarMilitar);
-
-    // Quando o usuário seleciona um item no formulário
     itemSelect.addEventListener('change', () => popularTamanhos(itemSelect.value));
-
-    // Quando o formulário de troca é enviado
     tradeForm.addEventListener('submit', registrarTroca);
     
-    // Delegação de evento para os botões "Concluir" na tabela
     tradeListBody.addEventListener('click', (e) => {
-        // Verifica se o clique foi em um botão de ação que não esteja desabilitado
         if (e.target.classList.contains('action-button') && !e.target.disabled) {
             const row = e.target.dataset.row;
             concluirTroca(row);
         }
     });
 
-    // Carrega a lista de trocas assim que a página é aberta
     carregarListaDeTrocas();
 });
-
