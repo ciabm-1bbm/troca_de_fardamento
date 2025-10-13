@@ -1,168 +1,237 @@
-/* Estilos Gerais */
+/* --- CONFIGURAÇÕES GERAIS E CORES --- */
+:root {
+    --primary-color: #008ed6;
+    --dark-color: #333;
+    --light-gray-color: #f4f4f4;
+    --white-color: #fff;
+    --border-color: #ddd;
+    --success-color: #28a745;
+    --grayed-out-color: #bbb;
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
+    background-color: var(--light-gray-color);
+    color: var(--dark-color);
     line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
 }
 
 .container {
-    max-width: 1100px;
+    max-width: 950px; /* Aumentei um pouco para a nova coluna */
     margin: auto;
-    overflow: hidden;
-    padding: 0 20px;
+    padding: 20px;
 }
 
-/* Cabeçalho */
+/* --- CABEÇALHO --- */
 #main-header {
-    background-color: #c00000; /* Vermelho bombeiro */
-    color: #fff;
+    background: var(--dark-color);
+    color: var(--white-color);
     padding: 20px 0;
     text-align: center;
-    border-bottom: 5px solid #8b0000;
+    border-bottom: 5px solid var(--primary-color);
+    margin-bottom: 20px;
 }
 
 #main-header h1 {
     font-family: 'Oswald', sans-serif;
     margin: 0;
     font-size: 2.5rem;
+    text-transform: uppercase;
 }
 
 #main-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
+    font-family: 'Open Sans', sans-serif;
+    margin: 5px 0 0 0;
+    font-size: 1rem;
     font-weight: 400;
+    color: #ccc;
 }
 
-/* Cards */
-.card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 25px;
-    margin-top: 25px;
-}
 
-.card h2 {
+/* --- TÍTULOS E TEXTOS --- */
+h2 {
     font-family: 'Oswald', sans-serif;
-    color: #c00000;
-    margin-top: 0;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 
-/* Formulário */
-.form-group {
-    margin-bottom: 15px;
+p {
+    margin: 0 0 15px 0;
 }
 
-.form-group label {
+/* --- CARDS E FORMULÁRIOS --- */
+.card {
+    background-color: var(--white-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-input[type="text"], input[type="tel"], select {
+input[type="text"], select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 10px;
     border-radius: 4px;
-    box-sizing: border-box; /* Garante que padding não afete a largura total */
+    border: 1px solid var(--border-color);
+    box-sizing: border-box; 
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: 2px solid var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 15px;
 }
 
 .form-group-inline {
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .form-group-inline .form-group {
-    flex: 1;
-}
-
-/* Botões */
-.button, .action-button {
-    display: inline-block;
-    background: #28a745; /* Verde */
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: bold;
     width: 100%;
-    box-sizing: border-box;
 }
 
-.button:hover {
-    background: #218838;
-}
-
-/* Tabela */
-.table-container {
-    overflow-x: auto; /* Adiciona scroll horizontal em telas pequenas */
-}
-
-#tradeTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-#tradeTable th, #tradeTable td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-#tradeTable th {
-    background-color: #333;
-    color: white;
-    font-family: 'Oswald', sans-serif;
-}
-
-#tradeTable tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.concluida td {
-    background-color: #e0e0e0 !important;
-    color: #888;
-    text-decoration: line-through;
-}
-
-.action-button {
-    background-color: #007bff; /* Azul */
-    padding: 5px 10px;
-    font-size: 0.9rem;
-    width: auto;
-}
-.action-button:hover {
-    background-color: #0056b3;
-}
-.action-button.concluido {
-    background-color: #6c757d; /* Cinza */
-    cursor: not-allowed;
-}
-
-
-/* Classes de visibilidade */
-.user-info-hidden, .trade-section-hidden {
+.user-info-hidden {
     display: none;
 }
 
-/* Mensagens de feedback */
+.user-info-visible {
+    display: block;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e9f5e9;
+    border-left: 5px solid var(--success-color);
+}
+
 #formMessage {
     margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
+    font-weight: bold;
     text-align: center;
 }
-.success {
-    background-color: #d4edda;
-    color: #155724;
+
+/* --- BOTÕES --- */
+.button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    color: var(--white-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
 }
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
+
+.button:hover {
+    background-color: #0072b0;
+}
+
+.complete-btn {
+    background-color: var(--success-color);
+    color: var(--white-color);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.complete-btn:hover {
+    background-color: #218838;
+}
+
+/* --- TABELA RESPONSIVA --- */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    min-width: 800px;
+}
+
+th, td {
+    padding: 12px 10px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    background-color: var(--light-gray-color);
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+td {
+    font-size: 14px;
+}
+
+tr:nth-child(even) {
+    background-color: var(--white-color);
+}
+tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Estilo para a linha concluída */
+tr.concluida {
+    background-color: #f8f9fa;
+    color: var(--grayed-out-color);
+    text-decoration: line-through;
+}
+
+tr.concluida .complete-btn {
+    display: none; /* Esconde o botão se a troca já foi concluída */
+}
+
+
+/* --- AJUSTES PARA CELULAR E TELAS MENORES --- */
+@media (max-width: 768px) {
+    #main-header h1 {
+        font-size: 1.8rem;
+    }
+    .container {
+        padding: 10px;
+    }
+    .card {
+        padding: 20px;
+    }
+}
+
+@media (min-width: 600px) {
+    .form-group-inline {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+    }
 }
