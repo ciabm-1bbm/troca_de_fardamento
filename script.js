@@ -195,9 +195,8 @@ const tamanhosPorItem = {
 // ######################################################
 
 
-// --- LÓGICA DA APLICAÇÃO (NÃO PRECISA ALTERAR DAQUI PARA BAIXO) ---
+// --- LÓGICA DA APLICAÇÃO ---
 
-// Elementos da página
 const idInput = document.getElementById('idInput');
 const userInfoDiv = document.getElementById('userInfo');
 const userGraduacaoSpan = document.getElementById('userGraduacao');
@@ -214,7 +213,6 @@ const tamanhoPrecisoSelect = document.getElementById('tamanhoPreciso');
 
 let militarLogado = null; 
 
-// *** NOVO: Função para formatar a data ***
 function formatarData(dataString) {
     if (!dataString) return '-';
     const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
