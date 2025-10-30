@@ -1,6 +1,6 @@
 // #################### CONFIGURAÇÃO ####################
 // 1. COLE A URL DO SEU SCRIPT DO GOOGLE AQUI
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwONdxNL-hAAgMM8FI5qCt9ls5wAnUFIFAfEzIpYTzySECa2HK4JrPFIQx8h4pLfLP0/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLjrWpMKLMTtThZRduW_iNsz5CxTXxEIdOPAThP-V0nOt93D1vsjwsNlOv5v-cXAqF/exec';
 
 // 2. LISTA DE MILITARES
 const dadosMilitares = [
@@ -358,5 +358,6 @@ async function carregarTrocas() {
 }
 
 document.addEventListener('DOMContentLoaded', carregarTrocas);
+
 
 
