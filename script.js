@@ -267,51 +267,63 @@ idInput.addEventListener('input', () => {
 });
 
 tradeForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault();
 
-    if (!militarLogado) {
-        alert("Por favor, insira uma ID Funcional válida primeiro.");
-        return;
-    }
-    
-    const formData = {
-        idFuncional: militarLogado.idFuncional,
-        nomeGuerra: militarLogado.nomeGuerra,
-        secao: militarLogado.secao,
-        item: document.getElementById('itemSelect').value,
-        tamanhoTenho: document.getElementById('tamanhoTenho').value,
-        tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
-        contato: document.getElementById('contatoInput').value,
-    };
+    if (!militarLogado) {
+        alert("Por favor, insira uma ID Funcional válida primeiro.");
+        return;
+    }
+    
+    const formData = {
+        action: 'create', // <-- Adiciona a ação que o Google Script espera
+        idFuncional: militarLogado.idFuncional,
+        nomeGuerra: militarLogado.nomeGuerra,
+        secao: militarLogado.secao,
+        item: document.getElementById('itemSelect').value,
+        tamanhoTenho: document.getElementById('tamanhoTenho').value,
+        tamanhoPreciso: document.getElementById('tamanhoPreciso').value,
+        contato: document.getElementById('contatoInput').value,
+    };
 
-    if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
-        alert("Por favor, preencha todos os campos para a troca.");
-        return;
-    }
+    if (!formData.item || !formData.tamanhoTenho || !formData.tamanhoPreciso) {
+        alert("Por favor, preencha todos os campos para a troca.");
+        return;
+    }
 
-    formMessage.textContent = 'Enviando...';
+    formMessage.textContent = 'Enviando...';
 
-    try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify(formData),
-        });
+    try {
+        // --- CORREÇÃO APLICADA AQUI ---
+        // 1. Removido 'mode: no-cors'
+        // 2. Adicionado 'mode: cors' (para ler a resposta)
+        // 3. Adicionado 'redirect: follow' (exigido pelo Google)
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors', // CORRIGIDO
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+            redirect: 'follow' // ADICIONADO
+        });
+        
+        const result = await response.json(); // Agora podemos ler a resposta
+        
+        if (result.status !== 'success') {
+            throw new Error(result.message || "Erro desconhecido ao enviar.");
+        }
+        // --- FIM DA CORREÇÃO ---
 
-        formMessage.style.color = 'green';
-        formMessage.textContent = 'Solicitação de troca registrada com sucesso! A lista será atualizada em breve.';
-        tradeForm.reset();
-        atualizarOpcoesDeTamanho();
-        setTimeout(carregarTrocas, 2000);
+        formMessage.style.color = 'green';
+        formMessage.textContent = 'Solicitação de troca registrada com sucesso! A lista será atualizada em breve.';
+        tradeForm.reset();
+        atualizarOpcoesDeTamanho();
+        setTimeout(carregarTrocas, 2000);
 
-    } catch (error) {
-        formMessage.style.color = 'red';
-        formMessage.textContent = 'Erro ao registrar a solicitação. Tente novamente.';
-        console.error('Erro:', error);
-    }
+    } catch (error) {
+        formMessage.style.color = 'red';
+        formMessage.textContent = `Erro ao registrar: ${error.message}`; // Mostra o erro real
+        console.error('Erro:', error);
+    }
 });
-
 async function carregarTrocas() {
     loadingMessage.style.display = 'block';
     tradeListTbody.innerHTML = '';
@@ -346,4 +358,5 @@ async function carregarTrocas() {
 }
 
 document.addEventListener('DOMContentLoaded', carregarTrocas);
+
 
